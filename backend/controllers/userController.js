@@ -14,7 +14,7 @@ export const signup = async (req, res) => {
     )
   ) {
     return res.status(403).json({
-      succes: false,
+      success: false,
       message: "name, email, username and password can't be empty",
     });
   }
@@ -29,12 +29,12 @@ export const signup = async (req, res) => {
   if (userExistsByEmail) {
     return res
       .status(405)
-      .json({ succes: false, message: "email already exists" });
+      .json({ success: false, message: "email already exists" });
   }
   if (userExistsByUsername) {
     return res
       .status(406)
-      .json({ succes: false, message: "username already exists" });
+      .json({ success: false, message: "username already exists" });
   }
   const salt = bcrypt.genSaltSync(10);
   const hashedSaltedPassword = bcrypt.hashSync(body.password, salt);
@@ -59,11 +59,11 @@ export const signup = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "2d" }
     );
-    res.status(200).json({ succes: true, token: token });
+    res.status(200).json({ success: true, token: token });
   } catch (err) {
     console.log(err);
     res.status(505).json({
-      succes: false,
+      success: false,
       message: "Problem Occured During Adding Data to Database",
       error: err,
     });
@@ -75,7 +75,7 @@ export const login = async (req, res) => {
   // check if body is empty
   if ([body.email, body.password].includes(null || undefined || "")) {
     return res.status(403).json({
-      succes: false,
+      success: false,
       message: "email and password can't be empty",
     });
   }
@@ -86,13 +86,13 @@ export const login = async (req, res) => {
   if (!user) {
     return res
       .status(405)
-      .json({ succes: false, message: "user doesn't exists" });
+      .json({ success: false, message: "user doesn't exists" });
   }
   const matched = await bcrypt.compareSync(body.password, user.password);
   if (!matched) {
     return res
       .status(406)
-      .json({ succes: false, message: "password incorrect" });
+      .json({ success: false, message: "password incorrect" });
   } else {
     //jwt signin
     const token = jwt.sign(
@@ -107,7 +107,7 @@ export const login = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "2d" }
     );
-    res.status(200).json({ succes: true, token: token });
+    res.status(200).json({ success: true, token: token });
   }
 };
 
@@ -117,7 +117,7 @@ export const getUserData = async (req, res) => {
     .lean()
     .then((user) => {
       if (!user) {
-        res.status(405).json({ succes: false, message: "User Not Found" });
+        res.status(405).json({ success: false, message: "User Not Found" });
       } else {
         res.status(200).json({ ...user, password: "Will Not Show to Client" });
       }
@@ -126,50 +126,131 @@ export const getUserData = async (req, res) => {
       console.log(err);
       res
         .status(505)
-        .json({ succes: false, message: "Some Unknown Error", error: err });
+        .json({ success: false, message: "Some Unknown Error", error: err });
     });
 };
 
-export const updateUserProfile = async (req,res) => {
+export const updateUserProfile = async (req, res) => {
   const body = req.body;
   const updates = {
-    'profile.aboutMe': body.aboutMe || "",
-    'profile.github': body.github || "",
-    'profile.linkedin': body.linkedin || "",
-    'profile.facebook': body.facebook || "",
-    'profile.instagram': body.instagram || "",
-    'profile.twitter': body.twitter || "",
-    'profile.website': body.website || "",
-    'profile.education': body.education || "",
-    'profile.currentWork': body.currentWork || ""
+    "profile.aboutMe": body.aboutMe || "",
+    "profile.github": body.github || "",
+    "profile.linkedin": body.linkedin || "",
+    "profile.facebook": body.facebook || "",
+    "profile.instagram": body.instagram || "",
+    "profile.twitter": body.twitter || "",
+    "profile.website": body.website || "",
+    "profile.education": body.education || "",
+    "profile.currentWork": body.currentWork || "",
   };
   try {
-    const updatedUser = await userSchema.findByIdAndUpdate(req.user._id,updates,{new:true}).lean();
-    if(!updatedUser){
-      res.status(405).json({succes:false,message:"User Not Updated due to some Unknwon Reasons"})
-    }else{
-      res.status(200).json({succes:true,user:{...updatedUser,password:"Will not show to client"}})
+    const updatedUser = await userSchema
+      .findByIdAndUpdate(req.user._id, updates, { new: true })
+      .lean();
+    if (!updatedUser) {
+      res
+        .status(405)
+        .json({
+          success: false,
+          message: "User Not Updated due to some Unknwon Reasons",
+        });
+    } else {
+      res
+        .status(200)
+        .json({
+          success: true,
+          user: { ...updatedUser, password: "Will not show to client" },
+        });
     }
   } catch (err) {
     console.log(err);
-    res.status(505).json({succes:false,message:"Some Error Occured",error:err})
+    res
+      .status(505)
+      .json({ success: false, message: "Some Error Occured", error: err });
   }
-}
+};
 
-export const updateInterests = async (req,res) => {
-  console.log(interests)
-  if(Array.isArray(interests)===false || interests.every(interest=> typeof interest === 'string')===false){
-    return res.status(403).json({succes:false,message:"interests must be an array of interests"});
+export const updateInterests = async (req, res) => {
+  console.log(interests);
+  if (
+    Array.isArray(interests) === false ||
+    interests.every((interest) => typeof interest === "string") === false
+  ) {
+    return res
+      .status(403)
+      .json({
+        success: false,
+        message: "interests must be an array of interests",
+      });
   }
   try {
-    const updatedUser = await userSchema.findByIdAndUpdate(req.user._id,{"interests":interests},{new:true}).lean();
-    if(!updatedUser){
-      res.status(405).json({succes:false,message:"User Interests Not Added due to Unknown Reasons"})
-    }else{
-      res.status(200).json({succes:true,user:{...updatedUser,password:"Will not show to client"}})
+    const updatedUser = await userSchema
+      .findByIdAndUpdate(req.user._id, { interests: interests }, { new: true })
+      .lean();
+    if (!updatedUser) {
+      res
+        .status(405)
+        .json({
+          success: false,
+          message: "User Interests Not Added due to Unknown Reasons",
+        });
+    } else {
+      res
+        .status(200)
+        .json({
+          success: true,
+          user: { ...updatedUser, password: "Will not show to client" },
+        });
     }
   } catch (err) {
     console.log(err);
-    res.status(505).json({succes:false,message:"Some error occured",error:err})
+    res
+      .status(505)
+      .json({ success: false, message: "Some error occured", error: err });
   }
-}
+};
+
+export const updatePassword = async (req, res) => {
+  const oldPassword = req.body.oldPassword;
+  const newPassword = req.body.newPassword;
+  const user = await userSchema.findById(req.user._id);
+  if (!user) {
+    return res.status(404).json({ success: false, message: "User Not Found" });
+  }
+  const matched = await bcrypt.compareSync(oldPassword, user.password);
+  if (!matched) {
+    return res
+      .status(420)
+      .json({ success: false, message: "Old Password Incorrect" });
+  }
+  try {
+    const salt = bcrypt.genSaltSync(10);
+    const hashedSaltedPassword = bcrypt.hashSync(newPassword, salt);
+    const updatedUser = await userSchema
+      .findByIdAndUpdate(
+        req.user._id,
+        { password: hashedSaltedPassword },
+        { new: true }
+      )
+      .lean();
+    if (!updatedUser) {
+      res
+        .status(405)
+        .json({
+          success: false,
+          message: "Password Not Updated Due to some Unknown Reasons",
+        });
+    } else {
+      res
+        .status(200)
+        .json({
+          success: true,
+          user: { ...updatedUser, password: "Will not show to client" },
+        });
+    }
+  } catch (err) {
+    res
+      .status(505)
+      .json({ success: false, message: "Some Error Occured", error: err });
+  }
+};
