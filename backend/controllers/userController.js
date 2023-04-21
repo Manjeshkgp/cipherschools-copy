@@ -112,17 +112,12 @@ export const login = async (req, res) => {
 };
 
 export const getUserData = async (req, res) => {
-  if (!req.user) {
-    res
-      .status(405)
-      .json({ succes: false, message: "request user not available" });
-  }
   userSchema
     .findById(req.user._id)
     .lean()
     .then((user) => {
       if (!user) {
-        res.status(406).json({ succes: false, message: "User Not Found" });
+        res.status(405).json({ succes: false, message: "User Not Found" });
       } else {
         res.status(200).json({ ...user, password: "Will Not Show to Client" });
       }
@@ -134,3 +129,47 @@ export const getUserData = async (req, res) => {
         .json({ succes: false, message: "Some Unknown Error", error: err });
     });
 };
+
+export const updateUserProfile = async (req,res) => {
+  const body = req.body;
+  const updates = {
+    'profile.aboutMe': body.aboutMe || "",
+    'profile.github': body.github || "",
+    'profile.linkedin': body.linkedin || "",
+    'profile.facebook': body.facebook || "",
+    'profile.instagram': body.instagram || "",
+    'profile.twitter': body.twitter || "",
+    'profile.website': body.website || "",
+    'profile.education': body.education || "",
+    'profile.currentWork': body.currentWork || ""
+  };
+  try {
+    const updatedUser = await userSchema.findByIdAndUpdate(req.user._id,updates,{new:true}).lean();
+    if(!updatedUser){
+      res.status(405).json({succes:false,message:"User Not Updated due to some Unknwon Reasons"})
+    }else{
+      res.status(200).json({succes:true,user:{...updatedUser,password:"Will not show to client"}})
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(505).json({succes:false,message:"Some Error Occured",error:err})
+  }
+}
+
+export const updateInterests = async (req,res) => {
+  console.log(interests)
+  if(Array.isArray(interests)===false || interests.every(interest=> typeof interest === 'string')===false){
+    return res.status(403).json({succes:false,message:"interests must be an array of interests"});
+  }
+  try {
+    const updatedUser = await userSchema.findByIdAndUpdate(req.user._id,{"interests":interests},{new:true}).lean();
+    if(!updatedUser){
+      res.status(405).json({succes:false,message:"User Interests Not Added due to Unknown Reasons"})
+    }else{
+      res.status(200).json({succes:true,user:{...updatedUser,password:"Will not show to client"}})
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(505).json({succes:false,message:"Some error occured",error:err})
+  }
+}

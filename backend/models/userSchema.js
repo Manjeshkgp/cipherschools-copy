@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema(
     email: { type: String, required: true },
     username: { type: String, required: true },
     password: { type: String, required: true },
+    image:String,
     profile: {
       aboutMe: String,
       linkedin: String,
@@ -17,7 +18,7 @@ const userSchema = new mongoose.Schema(
       education: String,
       currentWork: String,
     },
-    interests: Array,
+    interests: {type:[String],default:[]},
     ciphers: [{ points: Number, date: Date }],
     followers: Array,
     following: Array,
