@@ -510,19 +510,100 @@ export const getUser = async (req, res) => {
 
 export const searchUsers = async (req, res) => {
   const { username } = req.query;
-  if(typeof username !== "string" || username === ""){
-    return res.status(405).json({success:false,message:"Username Query must be String and can't be empty"});
+  if (typeof username !== "string" || username === "") {
+    return res.status(405).json({
+      success: false,
+      message: "Username Query must be String and can't be empty",
+    });
   }
   try {
-    const users = await userSchema.find({
-    $or: [
-      { username: { $regex: username, $options: "i" } },
-      { name: { $regex: username, $options: "i" } },
-    ],
-  }).select(["-password","-_id","-profile","-interests","-email","-followers","-following","-ciphers"]).limit(10).lean()
-  res.status(200).json({success:false,users:users});
+    const users = await userSchema
+      .find({
+        $or: [
+          { username: { $regex: username, $options: "i" } },
+          { name: { $regex: username, $options: "i" } },
+        ],
+      })
+      .select([
+        "-password",
+        "-_id",
+        "-profile",
+        "-interests",
+        "-email",
+        "-followers",
+        "-following",
+        "-ciphers",
+      ])
+      .limit(10)
+      .lean();
+    res.status(200).json({ success: false, users: users });
   } catch (err) {
-    console.log(err)
-    res.status(505).json({success:false,message:"Some Error Occured",error:err})
+    console.log(err);
+    res
+      .status(505)
+      .json({ success: false, message: "Some Error Occured", error: err });
+  }
+};
+
+export const updateCiphers = async (req, res) => {
+  const today = new Date();
+  today.setHours(6, 0, 0, 0); // Set the time to 6am to get today's date(not time) since we are 5:30 hrs ahead GMT
+
+  try {
+    let user = await userSchema
+      .findOneAndUpdate(
+        { _id: req.user._id, ciphers: { $elemMatch: { date: today } } },
+        { $inc: { "ciphers.$.points": 1 } },
+        { new: true }
+      )
+      .select(["username", "ciphers"])
+      .lean();
+
+    if (!user) {
+      user = await userSchema
+        .findByIdAndUpdate(
+          req.user._id,
+          { $addToSet: { ciphers: { points: 1, date: today } } },
+          { new: true }
+        )
+        .select(["username", "ciphers"])
+        .lean();
+    }
+    res.status(200).json({ success: true, user: user });
+  } catch (err) {
+    res
+      .status(405)
+      .json({ success: false, message: "Some Error Occured", error: err });
+  }
+};
+
+export const getCiphers = async (req, res) => {
+  const { username } = req.query;
+  try {
+  const user = await userSchema
+    .findOne({ username: username })
+    .select(["ciphers.points", "ciphers.date"])
+    .lean();
+  const ciphers = user.ciphers.sort((a, b) => a.date - b.date);
+  const countCiphers = ciphers.length;
+
+  const cipherMap = new Map();
+  for (let i = 0; i < countCiphers; i++) {
+    const cipher = ciphers[i];
+    cipherMap.set(cipher.date.toISOString().slice(0, 10), cipher.points);
+  }
+
+  const last365days = [];
+  const today = new Date();
+  today.setHours(6, 0, 0, 0);
+  for (let i = 0; i < 365; i++) {
+    const date = new Date(today.getTime() - i * 24 * 60 * 60 * 1000);
+    const dateStr = date.toISOString().slice(0, 10);
+    const points = cipherMap.get(dateStr) || 0;
+    last365days.push({ points, date: dateStr });
+  }
+  res.status(200).json({ success: true, ciphers: last365days });
+  } catch (err) {
+    res.status(405).json({success:false,message:"Some Error Occured",error:err})
   }
 };
