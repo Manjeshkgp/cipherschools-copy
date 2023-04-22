@@ -247,8 +247,10 @@ export const updatePassword = async (req, res) => {
 };
 
 export const addImage = async (req, res) => {
-  if(req.file===undefined||req.file===null){
-    return res.status(403).json({success:false,message:"No file selected"});
+  if (req.file === undefined || req.file === null) {
+    return res
+      .status(403)
+      .json({ success: false, message: "No file selected" });
   }
   // create a unique file name
   const tmpPath = path.join(
@@ -264,13 +266,11 @@ export const addImage = async (req, res) => {
     unlinkSync(tmpPath);
     if (err) {
       console.log(err);
-      return res
-        .status(405)
-        .json({
-          success: false,
-          message: "Some Error Occured during Uploading",
-          error: err,
-        });
+      return res.status(405).json({
+        success: false,
+        message: "Some Error Occured during Uploading",
+        error: err,
+      });
     }
     const imageUrl = result.secure_url;
     const publicId = result.public_id;
@@ -288,13 +288,11 @@ export const addImage = async (req, res) => {
           function (err3, result) {
             if (err3) {
               console.log(err3);
-              return res
-                .status(406)
-                .json({
-                  success: false,
-                  message: "Image Changed, but previous image not deleted",
-                  error: err3,
-                });
+              return res.status(406).json({
+                success: false,
+                message: "Image Changed, but previous image not deleted",
+                error: err3,
+              });
             }
             res.status(200).json({ success: true, url: imageUrl });
           }
@@ -307,4 +305,174 @@ export const addImage = async (req, res) => {
         .json({ success: false, message: "Some Error Occured", error: err2 });
     }
   });
+};
+
+export const followUser = async (req, res) => {
+  const { username } = req.query;
+  if (typeof username !== "string") {
+    return res
+      .status(404)
+      .json({ success: false, message: "Username Query is Not a String" });
+  }
+  if (
+    !username ||
+    username === "" ||
+    username === null ||
+    username === undefined
+  ) {
+    return res.status(403).json({ success: false, message: "No Username" });
+  }
+  if (username === req.user.username) {
+    return res
+      .status(406)
+      .json({ success: false, message: "You can't follow yourself" });
+  }
+  try {
+    const user = await userSchema
+      .findOneAndUpdate(
+        { username: username },
+        { $addToSet: { followers: req.user.username } },
+        { new: true }
+      )
+      .lean();
+    const myself = await userSchema
+      .findOneAndUpdate(
+        { username: req.user.username },
+        { $addToSet: { following: username } },
+        { new: true }
+      )
+      .lean();
+    res.status(200).json({
+      success: true,
+      hisFollowers: user.followers,
+      youFollowing: myself.following,
+    });
+  } catch (err) {
+    console.log(err);
+    res
+      .status(405)
+      .json({ success: false, message: "Some Error Occured", error: err });
+  }
+};
+
+export const unFollowUser = async (req, res) => {
+  const { username } = req.query;
+  if (typeof username !== "string") {
+    return res
+      .status(404)
+      .json({ success: false, message: "Username Query is Not a String" });
+  }
+  if (
+    !username ||
+    username === "" ||
+    username === null ||
+    username === undefined
+  ) {
+    return res.status(403).json({ success: false, message: "No Username" });
+  }
+  if (username === req.user.username) {
+    return res
+      .status(406)
+      .json({ success: false, message: "You can't follow yourself" });
+  }
+  try {
+    const user = await userSchema
+      .findOneAndUpdate(
+        { username: username },
+        { $pull: { followers: req.user.username } },
+        { new: true }
+      )
+      .lean();
+    const myself = await userSchema
+      .findOneAndUpdate(
+        { username: req.user.username },
+        { $pull: { following: username } },
+        { new: true }
+      )
+      .lean();
+    res.status(200).json({
+      success: true,
+      hisFollowers: user.followers,
+      youFollowing: myself.following,
+    });
+  } catch (err) {
+    console.log(err);
+    res
+      .status(405)
+      .json({ success: false, message: "Some Error Occured", error: err });
+  }
+};
+
+export const getFollowers = async (req, res) => {
+  const { username, page } = req.query;
+  if (typeof username !== "string" || username === "") {
+    return res
+      .status(403)
+      .json({
+        succes: false,
+        message: "Query Username Must be a String & can't be empty",
+      });
+  }
+  if (isNaN(Number(page)) || Number(page) < 1) {
+    return res
+      .status(403)
+      .json({
+        succes: false,
+        message: "Query Page Must be a Number & can't be less than 1",
+      });
+  }
+  const theUser = await userSchema.findOne({ username: username }).lean();
+  const allFollowersUsernames = theUser.followers;
+  try {
+    const limit = 10;
+    const skip = (page - 1) * limit;
+    const followers = await userSchema
+      .find({ username: { $in: allFollowersUsernames } })
+      .skip(skip)
+      .limit(limit)
+      .select(["name", "username", "image", "profile", "interests"]);
+    res.status(200).json({ success: true, followers: followers });
+  } catch (err) {
+    console.log(err);
+    res
+      .status(505)
+      .json({ succes: false, message: "Some Error Occured", error: err });
+  }
+};
+
+export const getFollowing = async (req, res) => {
+  const { username, page } = req.query;
+  if (typeof username !== "string" || username === "") {
+    return res
+      .status(403)
+      .json({
+        succes: false,
+        message: "Query Username Must be a String & can't be empty",
+      });
+  }
+  if (isNaN(Number(page)) || Number(page) < 1) {
+    return res
+      .status(403)
+      .json({
+        succes: false,
+        message: "Query Page Must be a Number & can't be less than 1",
+      });
+  }
+  const theUser = await userSchema.findOne({ username: username }).lean();
+  const allFollowingUsernames = theUser.following;
+  try {
+    const limit = 10;
+    const skip = (page - 1) * limit;
+    const following = await userSchema
+      .find({ username: { $in: allFollowingUsernames } })
+      .skip(skip)
+      .limit(limit)
+      .select(["name", "username", "image", "profile", "interests"]);
+    res.status(200).json({ success: true, following: following });
+  } catch (err) {
+    console.log(err);
+    res
+      .status(505)
+      .json({ succes: false, message: "Some Error Occured", error: err });
+  }
 };

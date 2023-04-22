@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getUserData, login, signup, updateInterests, updateUserProfile, updatePassword, addImage } from "../controllers/userController.js";
+import { getUserData, login, signup, updateInterests, updateUserProfile, updatePassword, addImage, followUser, unFollowUser, getFollowers, getFollowing } from "../controllers/userController.js";
 import auth from "../middlewares/auth.js";
 import { upload } from "../middlewares/multer.js";
 
@@ -12,5 +12,9 @@ router.route("/profile").patch(auth,updateUserProfile);
 router.route("/interests").patch(auth,updateInterests);
 router.route("/password").patch(auth,updatePassword);
 router.route("/image").post(auth,upload.single("image"),addImage);
+router.route("/follow").patch(auth,followUser);
+router.route("/unfollow").patch(auth,unFollowUser);
+router.route("/followers").get(auth,getFollowers);
+router.route("/following").get(auth,getFollowing);
 
 export default router;
