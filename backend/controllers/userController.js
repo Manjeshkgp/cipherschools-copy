@@ -2,6 +2,11 @@ import userSchema from "../models/userSchema.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import cloudinary from "../config/cloudinary.js";
+import { writeFileSync } from "fs";
+import { unlinkSync } from "fs";
+import os from "os";
+import path from "path";
 
 dotenv.config();
 
@@ -148,19 +153,15 @@ export const updateUserProfile = async (req, res) => {
       .findByIdAndUpdate(req.user._id, updates, { new: true })
       .lean();
     if (!updatedUser) {
-      res
-        .status(405)
-        .json({
-          success: false,
-          message: "User Not Updated due to some Unknwon Reasons",
-        });
+      res.status(405).json({
+        success: false,
+        message: "User Not Updated due to some Unknwon Reasons",
+      });
     } else {
-      res
-        .status(200)
-        .json({
-          success: true,
-          user: { ...updatedUser, password: "Will not show to client" },
-        });
+      res.status(200).json({
+        success: true,
+        user: { ...updatedUser, password: "Will not show to client" },
+      });
     }
   } catch (err) {
     console.log(err);
@@ -176,31 +177,25 @@ export const updateInterests = async (req, res) => {
     Array.isArray(interests) === false ||
     interests.every((interest) => typeof interest === "string") === false
   ) {
-    return res
-      .status(403)
-      .json({
-        success: false,
-        message: "interests must be an array of interests",
-      });
+    return res.status(403).json({
+      success: false,
+      message: "interests must be an array of interests",
+    });
   }
   try {
     const updatedUser = await userSchema
       .findByIdAndUpdate(req.user._id, { interests: interests }, { new: true })
       .lean();
     if (!updatedUser) {
-      res
-        .status(405)
-        .json({
-          success: false,
-          message: "User Interests Not Added due to Unknown Reasons",
-        });
+      res.status(405).json({
+        success: false,
+        message: "User Interests Not Added due to Unknown Reasons",
+      });
     } else {
-      res
-        .status(200)
-        .json({
-          success: true,
-          user: { ...updatedUser, password: "Will not show to client" },
-        });
+      res.status(200).json({
+        success: true,
+        user: { ...updatedUser, password: "Will not show to client" },
+      });
     }
   } catch (err) {
     console.log(err);
@@ -234,23 +229,82 @@ export const updatePassword = async (req, res) => {
       )
       .lean();
     if (!updatedUser) {
-      res
-        .status(405)
-        .json({
-          success: false,
-          message: "Password Not Updated Due to some Unknown Reasons",
-        });
+      res.status(405).json({
+        success: false,
+        message: "Password Not Updated Due to some Unknown Reasons",
+      });
     } else {
-      res
-        .status(200)
-        .json({
-          success: true,
-          user: { ...updatedUser, password: "Will not show to client" },
-        });
+      res.status(200).json({
+        success: true,
+        user: { ...updatedUser, password: "Will not show to client" },
+      });
     }
   } catch (err) {
     res
       .status(505)
       .json({ success: false, message: "Some Error Occured", error: err });
   }
+};
+
+export const addImage = async (req, res) => {
+  if(req.file===undefined||req.file===null){
+    return res.status(403).json({success:false,message:"No file selected"});
+  }
+  // create a unique file name
+  const tmpPath = path.join(
+    os.tmpdir(),
+    `${Date.now()}-${req.file.originalname}`
+  );
+
+  // write the buffer data to the temporary file
+  writeFileSync(tmpPath, req.file.buffer);
+
+  cloudinary.uploader.upload(tmpPath, async function (err, result) {
+    // delete the temporary file from the server
+    unlinkSync(tmpPath);
+    if (err) {
+      console.log(err);
+      return res
+        .status(405)
+        .json({
+          success: false,
+          message: "Some Error Occured during Uploading",
+          error: err,
+        });
+    }
+    const imageUrl = result.secure_url;
+    const publicId = result.public_id;
+    try {
+      const user = await userSchema.findByIdAndUpdate(
+        req.user._id,
+        { "image.url": imageUrl, "image.publicId": publicId },
+        { new: false }
+      );
+      if (["", null, undefined].includes(user.image.publicId)) {
+        return res.status(200).json({ success: true, url: imageUrl });
+      } else {
+        cloudinary.uploader.destroy(
+          user.image.publicId,
+          function (err3, result) {
+            if (err3) {
+              console.log(err3);
+              return res
+                .status(406)
+                .json({
+                  success: false,
+                  message: "Image Changed, but previous image not deleted",
+                  error: err3,
+                });
+            }
+            res.status(200).json({ success: true, url: imageUrl });
+          }
+        );
+      }
+    } catch (err2) {
+      console.log(err2);
+      res
+        .status(404)
+        .json({ success: false, message: "Some Error Occured", error: err2 });
+    }
+  });
 };

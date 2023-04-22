@@ -6,7 +6,10 @@ const userSchema = new mongoose.Schema(
     email: { type: String, required: true },
     username: { type: String, required: true },
     password: { type: String, required: true },
-    image:String,
+    image:{
+      url:{type:String,default:""},
+      publicId:{type:String,default:""}
+    },
     profile: {
       aboutMe: String,
       linkedin: String,
