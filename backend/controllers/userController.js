@@ -406,73 +406,123 @@ export const unFollowUser = async (req, res) => {
 export const getFollowers = async (req, res) => {
   const { username, page } = req.query;
   if (typeof username !== "string" || username === "") {
-    return res
-      .status(403)
-      .json({
-        succes: false,
-        message: "Query Username Must be a String & can't be empty",
-      });
+    return res.status(403).json({
+      success: false,
+      message: "Query Username Must be a String & can't be empty",
+    });
   }
   if (isNaN(Number(page)) || Number(page) < 1) {
-    return res
-      .status(403)
-      .json({
-        succes: false,
-        message: "Query Page Must be a Number & can't be less than 1",
-      });
+    return res.status(403).json({
+      success: false,
+      message: "Query Page Must be a Number & can't be less than 1",
+    });
   }
   const theUser = await userSchema.findOne({ username: username }).lean();
   const allFollowersUsernames = theUser.followers;
   try {
     const limit = 10;
     const skip = (page - 1) * limit;
+    const followersCount = await userSchema.countDocuments({
+      username: { $in: allFollowersUsernames },
+    });
     const followers = await userSchema
       .find({ username: { $in: allFollowersUsernames } })
       .skip(skip)
       .limit(limit)
-      .select(["name", "username", "image", "profile", "interests"]);
-    res.status(200).json({ success: true, followers: followers });
+      .select([
+        "name",
+        "username",
+        "image",
+        "profile",
+        "followers",
+        "following",
+      ]);
+    res
+      .status(200)
+      .json({ success: true, followers: followers, count: followersCount });
   } catch (err) {
     console.log(err);
     res
       .status(505)
-      .json({ succes: false, message: "Some Error Occured", error: err });
+      .json({ success: false, message: "Some Error Occured", error: err });
   }
 };
 
 export const getFollowing = async (req, res) => {
   const { username, page } = req.query;
   if (typeof username !== "string" || username === "") {
-    return res
-      .status(403)
-      .json({
-        succes: false,
-        message: "Query Username Must be a String & can't be empty",
-      });
+    return res.status(403).json({
+      success: false,
+      message: "Query Username Must be a String & can't be empty",
+    });
   }
   if (isNaN(Number(page)) || Number(page) < 1) {
-    return res
-      .status(403)
-      .json({
-        succes: false,
-        message: "Query Page Must be a Number & can't be less than 1",
-      });
+    return res.status(403).json({
+      success: false,
+      message: "Query Page Must be a Number & can't be less than 1",
+    });
   }
   const theUser = await userSchema.findOne({ username: username }).lean();
   const allFollowingUsernames = theUser.following;
   try {
     const limit = 10;
     const skip = (page - 1) * limit;
+    const followingCount = await userSchema.countDocuments({
+      username: { $in: allFollowingUsernames },
+    });
     const following = await userSchema
       .find({ username: { $in: allFollowingUsernames } })
       .skip(skip)
       .limit(limit)
-      .select(["name", "username", "image", "profile", "interests"]);
-    res.status(200).json({ success: true, following: following });
+      .select([
+        "name",
+        "username",
+        "image",
+        "profile",
+        "followers",
+        "following",
+      ]);
+    res
+      .status(200)
+      .json({ success: true, following: following, count: followingCount });
   } catch (err) {
     console.log(err);
     res
       .status(505)
-      .json({ succes: false, message: "Some Error Occured", error: err });
+      .json({ success: false, message: "Some Error Occured", error: err });
+  }
+};
+
+export const getUser = async (req, res) => {
+  const { username } = req.params;
+  try {
+    const user = await userSchema
+      .findOne({ username: username })
+      .select({ password: 0, "image.publicId": 0 })
+      .select({ _id: 0 })
+      .lean();
+    res.status(200).json({ success: true, user: user });
+  } catch (err) {
+    console.log(err);
+    res.json({ success: false, message: "Some Error Occured", error: err });
+  }
+};
+
+export const searchUsers = async (req, res) => {
+  const { username } = req.query;
+  if(typeof username !== "string" || username === ""){
+    return res.status(405).json({success:false,message:"Username Query must be String and can't be empty"});
+  }
+  try {
+    const users = await userSchema.find({
+    $or: [
+      { username: { $regex: username, $options: "i" } },
+      { name: { $regex: username, $options: "i" } },
+    ],
+  }).select(["-password","-_id","-profile","-interests","-email","-followers","-following","-ciphers"]).limit(10).lean()
+  res.status(200).json({success:false,users:users});
+  } catch (err) {
+    console.log(err)
+    res.status(505).json({success:false,message:"Some Error Occured",error:err})
   }
 };
