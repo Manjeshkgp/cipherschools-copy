@@ -6,6 +6,7 @@ import Details from "../components/profile/Details";
 import Password from "../components/profile/Password";
 import Interests from "../components/profile/Interests";
 import Button from "../components/Button";
+import Heatmap from "../components/profile/Heatmap";
 
 interface ProfileProps {}
 
@@ -72,7 +73,7 @@ const Profile: FC<ProfileProps> = ({}) => {
             : "mt-[calc(90px+3.75rem)] transition-all duration-300 dark:bg-gray-950 dark:text-gray-50 w-full lg:w-[calc(100%-15rem)] flex flex-col justify-start items-center flex-wrap"
         }
       >
-        <div>ciphermap</div>
+        <Heatmap/>
         <Details />
         <Password />
         <Interests setPopup={setPopup} chosenInterests={chosenInterests} />
