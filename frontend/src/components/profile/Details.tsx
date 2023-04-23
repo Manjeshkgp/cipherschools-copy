@@ -64,7 +64,7 @@ const Details: FC<DetailsProps> = ({}) => {
             name="linkedin"
               placeholder="LinkedIn"
               type="text"
-              className="w-[92%] p-2 rounded-r-md bg-gray-100 text-gray-950 dark:bg-gray-800 dark:text-gray-50 focus:outline-none"
+              className="w-[92%] md:w-[97%] p-2 rounded-r-md bg-gray-100 text-gray-950 dark:bg-gray-800 dark:text-gray-50 focus:outline-none"
             />
           </div>{" "}
           <div className="flex lg:w-[calc(50%-1rem)] w-[100%] border rounded-md border-gray-500">
@@ -79,7 +79,7 @@ const Details: FC<DetailsProps> = ({}) => {
             name="github"
               placeholder="Github"
               type="text"
-              className="w-[92%] p-2 rounded-r-md bg-gray-100 text-gray-950 dark:bg-gray-800 dark:text-gray-50 focus:outline-none"
+              className="w-[92%] md:w-[97%]  p-2 rounded-r-md bg-gray-100 text-gray-950 dark:bg-gray-800 dark:text-gray-50 focus:outline-none"
             />
           </div>{" "}
           <div className="flex lg:w-[calc(50%-1rem)] w-[100%] border rounded-md border-gray-500">
@@ -95,7 +95,7 @@ const Details: FC<DetailsProps> = ({}) => {
             name="facebook"
               placeholder="Facebook"
               type="text"
-              className="w-[92%] p-2 rounded-r-md bg-gray-100 text-gray-950 dark:bg-gray-800 dark:text-gray-50 focus:outline-none"
+              className="w-[92%] md:w-[97%]  p-2 rounded-r-md bg-gray-100 text-gray-950 dark:bg-gray-800 dark:text-gray-50 focus:outline-none"
             />
           </div>{" "}
           <div className="flex lg:w-[calc(50%-1rem)] w-[100%] border rounded-md border-gray-500">
@@ -110,7 +110,7 @@ const Details: FC<DetailsProps> = ({}) => {
             name="twitter"
               placeholder="Twitter"
               type="text"
-              className="w-[92%] p-2 rounded-r-md bg-gray-100 text-gray-950 dark:bg-gray-800 dark:text-gray-50 focus:outline-none"
+              className="w-[92%] md:w-[97%]  p-2 rounded-r-md bg-gray-100 text-gray-950 dark:bg-gray-800 dark:text-gray-50 focus:outline-none"
             />
           </div>{" "}
           <div className="flex lg:w-[calc(50%-1rem)] w-[100%] border rounded-md border-gray-500">
@@ -125,7 +125,7 @@ const Details: FC<DetailsProps> = ({}) => {
             name="instagram"
               placeholder="Instagram"
               type="text"
-              className="w-[92%] p-2 rounded-r-md bg-gray-100 text-gray-950 dark:bg-gray-800 dark:text-gray-50 focus:outline-none"
+              className="w-[92%] md:w-[97%]  p-2 rounded-r-md bg-gray-100 text-gray-950 dark:bg-gray-800 dark:text-gray-50 focus:outline-none"
             />
           </div>{" "}
           <div className="flex lg:w-[calc(50%-1rem)] w-[100%] border rounded-md border-gray-500">
@@ -141,7 +141,7 @@ const Details: FC<DetailsProps> = ({}) => {
             name="website"
               placeholder="Your Website"
               type="text"
-              className="w-[92%] p-2 rounded-r-md bg-gray-100 text-gray-950 dark:bg-gray-800 dark:text-gray-50 focus:outline-none"
+              className="w-[92%] md:w-[97%]  p-2 rounded-r-md bg-gray-100 text-gray-950 dark:bg-gray-800 dark:text-gray-50 focus:outline-none"
             />
           </div>{" "}
         </div>{" "}

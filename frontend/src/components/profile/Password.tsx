@@ -16,7 +16,7 @@ const Password: FC<PasswordProps> = ({}) => {
     })
   return (<>
   <div className="flex flex-wrap w-[96%] justify-center gap-x-2 gap-y-4 p-2 pt-20 relative pb-4">
-          <div className="text-lg font-bold absolute top-6 left-4">
+          <div className="md:text-lg font-bold absolute top-6 left-4">
             <p>CHANGE PASSWORD</p>
           </div>
           <div className="absolute top-6 right-4">
@@ -36,7 +36,7 @@ const Password: FC<PasswordProps> = ({}) => {
             name="oldPassword"
               placeholder="Old Password"
               type={showOld?"text":"password"}
-              className="w-[92%] p-2 rounded-r-md bg-gray-100 text-gray-950 dark:bg-gray-800 dark:text-gray-50 focus:outline-none"
+              className="w-[92%] md:w-[97%] p-2 rounded-r-md bg-gray-100 text-gray-950 dark:bg-gray-800 dark:text-gray-50 focus:outline-none"
             />
           </div>{" "}
           <div className="flex lg:w-[calc(50%-1rem)] w-[100%] border rounded-md border-gray-500">
@@ -53,7 +53,7 @@ const Password: FC<PasswordProps> = ({}) => {
             name="newPassword"
               placeholder="New Password"
               type={showNew?"text":"password"}
-              className="w-[92%] p-2 rounded-r-md bg-gray-100 text-gray-950 dark:bg-gray-800 dark:text-gray-50 focus:outline-none"
+              className="w-[92%] md:w-[97%] p-2 rounded-r-md bg-gray-100 text-gray-950 dark:bg-gray-800 dark:text-gray-50 focus:outline-none"
             />
           </div>{" "}
         <hr className="w-[99%] border border-gray-400" />
