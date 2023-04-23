@@ -5,9 +5,11 @@ import { IoIosNotificationsOutline } from "react-icons/io";
 import {BiSearch,BiSun,BiMoon} from "react-icons/bi";
 import {RxCross2} from "react-icons/rx";
 
-interface HeaderProps {}
+interface HeaderProps {
+  setShrink:Function
+}
 
-const Header: FC<HeaderProps> = ({}) => {
+const Header: FC<HeaderProps> = ({setShrink}) => {
     const [mobileSearch,setMobileSearch] = useState<boolean>(false);
   return (
     <>
@@ -17,12 +19,12 @@ const Header: FC<HeaderProps> = ({}) => {
             <input
               type="text"
               className="focus:outline-none py-2 w-[90%] bg-gray-50 dark:bg-gray-950 text-sm"
-              placeholder="Search and Learn"
+              placeholder="Search Users and Follow them"
             />
             <RxCross2 onClick={()=>{setMobileSearch(!mobileSearch)}} className="bg-gray-50 dark:bg-gray-950 h-9 w-9 p-2 rounded-r-full"/>
           </div>
         <div className="flex items-center justify-start gap-x-2">
-          <div className="hidden lg:flex flex-col h-14 w-12 ml-6 cursor-pointer">
+          <div onClick={()=>setShrink((prev:boolean)=>(!prev))} className="hidden lg:flex flex-col h-14 w-12 ml-6 cursor-pointer">
             <div className="w-6 h-[3px] mt-5 bg-gray-900 dark:bg-gray-100 rounded-sm"></div>
             <div className="w-6 h-[3px] mt-1 bg-gray-900 dark:bg-gray-100 rounded-sm"></div>
             <div className="w-4 h-[3px] mt-1 bg-gray-900 dark:bg-gray-100 rounded-sm"></div>
@@ -52,11 +54,14 @@ const Header: FC<HeaderProps> = ({}) => {
             <input
               type="text"
               className="focus:outline-none p-2 w-80 bg-gray-50 dark:bg-gray-950 pr-3 pl-0 rounded-r-full text-sm"
-              placeholder="Search and Learn"
+              placeholder="Search Users and Follow them"
             />
           </div>
           <div className="relative">
             <IoIosNotificationsOutline size={25} className="cursor-pointer " />
+          </div>{" "}
+          <div className="relative">
+            <img src="https://picsum.photos/seed/picsum/200/300" className="w-6 h-6 rounded-full cursor-pointer" alt="" />
           </div>{" "}
           <div className="relative">
             <img
