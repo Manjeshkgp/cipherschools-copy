@@ -1,16 +1,15 @@
-import { FC,ButtonHTMLAttributes } from 'react'
+import { FC,ButtonHTMLAttributes,forwardRef } from 'react'
 
-interface ButtonProps {
-  children:React.ReactNode,
-  rest?:ButtonHTMLAttributes<HTMLButtonElement>
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  children:React.ReactNode
 }
 
-const Button: FC<ButtonProps> = ({children,rest}) => {
+const Button = ({children,...rest}:ButtonProps,ref:any) => {
   return (<>
-  <button {...rest} className='min-w-[7rem] w-max h-7 text-center text-gray-50 rounded-md bg-[#F3912E] hover:bg-[#F3912E70] active:bg-[#F3912E70]'>
+  <button ref={ref} {...rest} className='min-w-[7rem] w-max h-7 text-center text-gray-50 rounded-md bg-[#F3912E] hover:bg-[#F3912E70] active:bg-[#F3912E70]'>
     {children}
   </button>
   </>)
 }
 
-export default Button
+export default forwardRef(Button)

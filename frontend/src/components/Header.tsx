@@ -13,7 +13,7 @@ const Header: FC<HeaderProps> = ({setShrink}) => {
     const [mobileSearch,setMobileSearch] = useState<boolean>(false);
   return (
     <>
-      <div className="w-full h-[3.75rem] bg-gray-100 dark:bg-gray-800 dark:text-gray-50 fixed top-0 border-b border-gray-200 flex justify-between items-center">
+      <div className="w-full h-[3.75rem] bg-gray-100 dark:bg-gray-800 dark:text-gray-50 fixed top-0 z-50 border-b border-gray-200 flex justify-between items-center">
       <div className={mobileSearch?"justify-center items-center lg:hidden flex absolute w-[100%] dark:bg-gray-800 bg-gray-100 z-10":"hidden"}>
             <BiSearch className="bg-gray-50 dark:bg-gray-950 h-9 w-9 p-2 rounded-l-full"/>
             <input
