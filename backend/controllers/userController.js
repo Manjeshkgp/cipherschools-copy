@@ -64,7 +64,7 @@ export const signup = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "2d" }
     );
-    res.status(200).json({ success: true, token: token });
+    res.status(200).json({ success: true, token: token, username:saveUser.username });
   } catch (err) {
     console.log(err);
     res.status(505).json({
@@ -112,7 +112,7 @@ export const login = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "2d" }
     );
-    res.status(200).json({ success: true, token: token });
+    res.status(200).json({ success: true, token: token, username:user.username });
   }
 };
 

@@ -4,6 +4,8 @@ import { BiChevronDown } from "react-icons/bi";
 import { IoIosNotificationsOutline } from "react-icons/io";
 import {BiSearch,BiSun,BiMoon} from "react-icons/bi";
 import {RxCross2} from "react-icons/rx";
+import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 interface HeaderProps {
   setShrink:Function
@@ -11,6 +13,7 @@ interface HeaderProps {
 
 const Header: FC<HeaderProps> = ({setShrink}) => {
     const [mobileSearch,setMobileSearch] = useState<boolean>(false);
+    const points = useSelector((state:{points:{points:number}})=>state.points)
   return (
     <>
       <div className="w-full h-[3.75rem] bg-gray-100 dark:bg-gray-800 dark:text-gray-50 fixed top-0 z-50 border-b border-gray-200 flex justify-between items-center">
@@ -29,13 +32,13 @@ const Header: FC<HeaderProps> = ({setShrink}) => {
             <div className="w-6 h-[3px] mt-1 bg-gray-900 dark:bg-gray-100 rounded-sm"></div>
             <div className="w-4 h-[3px] mt-1 bg-gray-900 dark:bg-gray-100 rounded-sm"></div>
           </div>
-          <button>
+          <Link to={"/"}>
             <img
               className="w-9 h-9 ml-2 lg:ml-0 object-center object-contain"
               src="https://www.cipherschools.com/static/media/Cipherschools_icon@2x.3b571d743ffedc84d039.png"
               alt="logo"
             />
-          </button>
+          </Link>
           <p className="text-[1.35rem] hidden md:block font-semibold">CipherSchools</p>
           <div className="hidden lg:flex h-14 justify-center items-center gap-x-1 ml-2 text-lg cursor-pointer">
             <RiCompass3Line />
@@ -60,15 +63,18 @@ const Header: FC<HeaderProps> = ({setShrink}) => {
           <div className="relative">
             <IoIosNotificationsOutline size={25} className="cursor-pointer " />
           </div>{" "}
-          <div className="relative">
+          <Link to={"/profile"} className="relative">
             <img src="https://picsum.photos/seed/picsum/200/300" className="w-6 h-6 rounded-full cursor-pointer" alt="" />
-          </div>{" "}
+          </Link>{" "}
           <div className="relative">
             <img
               className="w-6 h-6 cursor-pointer"
               src="https://www.cipherschools.com/static/media/WatchPoints.1caa87d88b88c0d4b4ee24fdd5b1db3f.svg"
               alt=""
             />
+            <button className="top-4 left-2 absolute bg-gray-950 text-white px-1 rounded-full">
+              {points.points}
+            </button>
           </div>
           <div className="relative">
             <button onClick={()=>{document.documentElement.classList.toggle("dark")}} className="lg:mr-8 flex justify-center items-center"><BiSun className="hidden dark:block w-6 h-6"/> <BiMoon className="dark:hidden block w-6 h-6"/></button>

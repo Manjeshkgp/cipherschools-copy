@@ -1,7 +1,39 @@
 import React from 'react'
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
+import axios from "axios";
+import Cookies from 'js-cookie';
 
 const Signup = () => {
+  const [formdata,setFormdata] = React.useState({
+    name:"",
+    email:"",
+    username:"",
+    password:""
+  })
+  const navigate = useNavigate();
+  const signupFetch = async() => {
+    let data = JSON.stringify(formdata);
+    
+    let config = {
+      method: 'post',
+      maxBodyLength: Infinity,
+      url: `${process.env.REACT_APP_API_URL}/users/signup`,
+      headers: { 
+        'Content-Type': 'application/json'
+      },
+      data : data
+    };
+    
+    axios.request(config)
+    .then((response) => {
+      Cookies.set("jwt",response.data.token,{expires:2});
+      Cookies.set("username",response.data.username,{expires:2});
+      navigate("/");
+    })
+    .catch((error) => {
+      alert(error.response.data.message);
+    });
+  }
   return (
     <div className="flex items-center justify-center">
       <div className="flex items-center justify-center px-4 py-10 sm:px-6 sm:py-16 lg:px-8 lg:py-24">
@@ -35,6 +67,8 @@ const Signup = () => {
                     className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent py-2 px-3 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-50 dark:focus:ring-gray-400 dark:focus:ring-offset-gray-900"
                     type="text"
                     placeholder="Enter You Full Name"
+                    value={formdata.name}
+                    onChange={(e)=>{setFormdata({...formdata,[e.target.id]:e.target.value})}}
                     id="name"
                   ></input>
                 </div>
@@ -52,8 +86,10 @@ const Signup = () => {
                   <input
                     className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent py-2 px-3 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-50 dark:focus:ring-gray-400 dark:focus:ring-offset-gray-900"
                     type="text"
-                    placeholder="Enter You Full Name"
+                    placeholder="Create a Unique Username"
                     id="username"
+                    value={formdata.username}
+                    onChange={(e)=>{setFormdata({...formdata,[e.target.id]:e.target.value})}}
                   ></input>
                 </div>
               </div>
@@ -72,6 +108,8 @@ const Signup = () => {
                     type="email"
                     placeholder="Enter Your Email"
                     id="email"
+                    value={formdata.email}
+                    onChange={(e)=>{setFormdata({...formdata,[e.target.id]:e.target.value})}}
                   ></input>
                 </div>
               </div>
@@ -90,12 +128,15 @@ const Signup = () => {
                     type="password"
                     placeholder="Enter Your Password"
                     id="password"
+                    value={formdata.password}
+                    onChange={(e)=>{setFormdata({...formdata,[e.target.id]:e.target.value})}}
                   ></input>
                 </div>
               </div>
 
               <div>
                 <button
+                  onClick={()=>{signupFetch()}}
                   type="button"
                   className="inline-flex w-full items-center justify-center rounded-md bg-indigo-600 px-3.5 py-2.5 text-base font-semibold leading-7 text-white hover:bg-indigo-500"
                 >

@@ -1,11 +1,93 @@
-import { FC } from 'react'
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
-interface HomeProps {
-  
-}
+const Home = () => {
+  const [page, setPage] = useState<number>(0);
+  const [courses, setCourses] = useState<any[]>([]);
+  let config = {
+    method: "get",
+    maxBodyLength: Infinity,
+    url: `https://www.cipherschools.com/course/getallcourses?page=${
+      page + 1
+    }&limit=8`,
+  };
+  function logWhenScrollToBottom() {
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight;
+    const scrollTop =
+      window.scrollY ||
+      window.pageYOffset ||
+      document.documentElement.scrollTop;
 
-const Home: FC<HomeProps> = ({}) => {
-  return <div>Home</div>
-}
+    if (scrollTop + windowHeight >= documentHeight - 10) {
+      setPage(page + 1);
+    }
+  }
 
-export default Home
+  useEffect(() => {
+    window.addEventListener("scroll", logWhenScrollToBottom);
+    axios
+      .request(config)
+      .then((response) => {
+        setCourses((prev:any[])=>([...prev,...response.data.result.data]));
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    return () => {
+      window.removeEventListener("scroll", logWhenScrollToBottom);
+    };
+  }, [page]);
+
+  return (
+    <>
+      <div className="flex justify-start flex-wrap items-start gap-2 ml-1 mt-2 bg-gray-100 dark:bg-gray-950 text-gray-950 dark:text-gray-50">
+        {courses?.map((course) => (
+          <div
+            key={course?.thumbnailImage}
+            className="max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
+          >
+            <a href="#">
+              <img
+                className="rounded-t-lg"
+                src={`${course?.thumbnailImage}`}
+                alt=""
+              />
+            </a>
+            <div className="p-5">
+              <a href="#">
+                <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                  {course?.title}
+                </h5>
+              </a>
+              <p className="mb-3 font-normal text-gray-700 dark:text-gray-400 line-clamp-6">
+                {course?.about}.
+              </p>
+              <a
+                href="#"
+                className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              >
+                Read more
+                <svg
+                  aria-hidden="true"
+                  className="w-4 h-4 ml-2 -mr-1"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  ></path>
+                </svg>
+              </a>
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+};
+
+export default Home;
